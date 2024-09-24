@@ -101,9 +101,9 @@ var now = new Date().getTime() / 1000;
         }
     return await withExponentialBackoff<number[]>(async () => {
       const payload: any = {
-        inputs: batch.map(c => c.slice(0,500)),
+        inputs: batch,
         parameters: {
-          truncate_inputs: 500,
+          truncate_input_tokens: 500,
           return_options: {input_text: false}
         },
         model_id: this.options.model,
