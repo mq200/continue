@@ -207,10 +207,14 @@ class WatsonX extends BaseLLM {
       parameters.top_k = options.topK;
     }
 
+    console.log(JSON.stringify(messages));
+    console.log(messages[messages.length - 1].content);
+
     const payload: any = {
       input: messages[messages.length - 1].content,
       parameters: parameters,
     };
+
     if (!this.watsonxFullUrl) {
       payload.model_id = options.model;
       payload.project_id = this.watsonxProjectId;
@@ -246,7 +250,7 @@ class WatsonX extends BaseLLM {
                 generatedChunk += result.generated_text || "";
               });
             } catch (e) {
-              console.error(`Error parsing JSON string: ${dataStr}`, e);
+              //console.error(`Error parsing JSON string: ${dataStr}`, e);
             }
           }
         });

@@ -728,11 +728,11 @@ export const models: { [key: string]: ModelPackage } = {
       "The Granite model series is a family of IBM-trained, dense decoder-only models, which are particularly well-suited for generative tasks.",
     params: {
       model: "ibm/granite-13b-chat-v2",
-      contextLength: 20_000,
+      contextLength: 8_000,
       title: "Granite Chat",
     },
     providerOptions: ["watsonx"],
-    icon: "",
+    icon: "watsonx.png",
     isOpenSource: false,
   },
   graniteCode: {
@@ -741,7 +741,7 @@ export const models: { [key: string]: ModelPackage } = {
       "The Granite model series is a family of IBM-trained, dense decoder-only models, which are particularly well-suited for generative tasks.",
     params: {
       model: "ibm/granite-20b-code-instruct",
-      contextLength: 20_000,
+      contextLength: 4_000,
       title: "watsonx - Granite Code 20b",
     },
     providerOptions: ["watsonx"],

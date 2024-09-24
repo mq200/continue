@@ -819,7 +819,13 @@ export interface EmbedOptions {
 
   // AWS and GCP Options
   region?: string;
-}
+
+  //Watsonx Options
+  watsonxUrl?: string;
+  watsonxCreds?: string;
+  watsonxProjectId?: string;
+  watsonxApiVersion?: string;
+  }
 
 export interface EmbeddingsProviderDescription extends EmbedOptions {
   provider: EmbeddingsProviderName;
