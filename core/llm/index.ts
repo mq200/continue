@@ -262,16 +262,29 @@ export abstract class BaseLLM implements ILLM {
     prompt: string,
     completionOptions: CompletionOptions,
   ): string {
-    const dict = { contextLength: this.contextLength, ...completionOptions };
-    const settings = Object.entries(dict)
-      .map(([key, value]) => `${key}: ${value}`)
-      .join("\n");
-    return `Settings:
-${settings}
+    const completionOptionsLog = JSON.stringify(
+      {
+        contextLength: this.contextLength,
+        ...completionOptions,
+      },
+      null,
+      2,
+    );
 
-############################################
+    let requestOptionsLog = "";
+    if (this.requestOptions) {
+      requestOptionsLog = JSON.stringify(this.requestOptions, null, 2);
+    }
 
-${prompt}`;
+    return (
+      "##### Completion options #####\n" +
+      completionOptionsLog +
+      (requestOptionsLog
+        ? "\n\n##### Request options #####\n" + requestOptionsLog
+        : "") +
+      "\n\n##### Prompt #####\n" +
+      prompt
+    );
   }
 
   private _logTokensGenerated(
@@ -281,7 +294,8 @@ ${prompt}`;
   ) {
     let promptTokens = this.countTokens(prompt);
     let generatedTokens = this.countTokens(completion);
-    Telemetry.capture(
+
+    void Telemetry.capture(
       "tokens_generated",
       {
         model: model,
@@ -291,12 +305,14 @@ ${prompt}`;
       },
       true,
     );
-    DevDataSqliteDb.logTokensGenerated(
+
+    void DevDataSqliteDb.logTokensGenerated(
       model,
       this.providerName,
       promptTokens,
       generatedTokens,
     );
+
     logDevData("tokens_generated", {
       model: model,
       provider: this.providerName,
@@ -342,11 +358,11 @@ ${prompt}`;
           ) {
             if (resp.url.includes("codestral.mistral.ai")) {
               throw new Error(
-                'You are using a Mistral API key, which is not compatible with the Codestral API. Please either obtain a Codestral API key, or use the Mistral API by setting "apiBase" to "https://api.mistral.ai/v1" in config.json.',
+                "You are using a Mistral API key, which is not compatible with the Codestral API. Please either obtain a Codestral API key, or use the Mistral API by setting 'apiBase' to 'https://api.mistral.ai/v1' in config.json.",
               );
             } else {
               throw new Error(
-                'You are using a Codestral API key, which is not compatible with the Mistral API. Please either obtain a Mistral API key, or use the the Codestral API by setting "apiBase" to "https://codestral.mistral.ai/v1" in config.json.',
+                "You are using a Codestral API key, which is not compatible with the Mistral API. Please either obtain a Mistral API key, or use the the Codestral API by setting 'apiBase' to 'https://codestral.mistral.ai/v1' in config.json.",
               );
             }
           }
@@ -542,6 +558,7 @@ ${prompt}`;
     const completion = await this._complete(prompt, completionOptions);
 
     this._logTokensGenerated(completionOptions.model, prompt, completion);
+
     if (log && this.writeLog) {
       await this.writeLog(`Completion:\n\n${completion}\n\n`);
     }
@@ -604,6 +621,7 @@ ${prompt}`;
     }
 
     this._logTokensGenerated(completionOptions.model, prompt, completion);
+
     if (log && this.writeLog) {
       await this.writeLog(`Completion:\n\n${completion}\n\n`);
     }
