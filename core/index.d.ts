@@ -804,7 +804,8 @@ export type EmbeddingsProviderName =
   | "deepinfra"
   | "nvidia"
   | "voyage"
-  | "mistral";
+  | "mistral"
+  | "watsonx";
 
 export interface EmbedOptions {
   apiBase?: string;
@@ -827,6 +828,7 @@ export interface EmbedOptions {
   watsonxCreds?: string;
   watsonxProjectId?: string;
   watsonxApiVersion?: string;
+  watsonxFullUrl?: string;
   }
 
 export interface EmbeddingsProviderDescription extends EmbedOptions {

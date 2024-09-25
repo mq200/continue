@@ -207,9 +207,6 @@ class WatsonX extends BaseLLM {
       parameters.top_k = options.topK;
     }
 
-    console.log(JSON.stringify(messages));
-    console.log(messages[messages.length - 1].content);
-
     const payload: any = {
       input: messages[messages.length - 1].content,
       parameters: parameters,

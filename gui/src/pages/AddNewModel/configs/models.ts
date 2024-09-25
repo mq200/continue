@@ -723,7 +723,7 @@ export const models: { [key: string]: ModelPackage } = {
     isOpenSource: false,
   },
   graniteChat: {
-    title: "watsonx - Granite Chat",
+    title: "watsonx - Granite Chat 13b",
     description:
       "The Granite model series is a family of IBM-trained, dense decoder-only models, which are particularly well-suited for generative tasks.",
     params: {

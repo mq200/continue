@@ -520,13 +520,14 @@ To get started, [register](https://dataplatform.cloud.ibm.com/registration/stepo
         label: "Full watsonx URL",
         placeholder:
           "http://us-south.dataplatform.cloud.ibm.com/m1/v1/text/generation_stream?version=2023-05-29",
-        required: false,
+        required: false
       },
       {
         inputType: "text",
         key: "watsonxStopToken",
         label: "Stop Token",
         placeholder: "<|im_end|>",
+        required: false
       },
 
       ...completionParamsInputsConfigs,

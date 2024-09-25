@@ -11,7 +11,7 @@ import BaseEmbeddingsProvider, {
 const watsonxConfig = {
   accessToken: {
     expiration: 0,
-    token: undefined,
+    token: "",
   },
 };
 
@@ -23,10 +23,10 @@ class WatsonxEmbeddingsProvider extends BaseEmbeddingsProvider {
   };
 
   async getBearerToken(): Promise<{ token: string; expiration: number }> {
-    /*if (
+    if (
       this.options.watsonxFullUrl?.includes("cloud.ibm.com") ||
       this.options.watsonxUrl?.includes("cloud.ibm.com")
-    ) {*/
+    ) {
       // watsonx SaaS
       const wxToken = await (
         await fetch(
@@ -44,19 +44,19 @@ class WatsonxEmbeddingsProvider extends BaseEmbeddingsProvider {
         token: wxToken["access_token"],
         expiration: wxToken["expiration"],
       };
-    /*} else {
+    } else {
       // watsonx Software
-      if (!this.watsonxCreds?.includes(":")) {
+      if (!this.options.watsonxCreds?.includes(":")) {
         // Using ZenApiKey auth
         return {
-          token: this.watsonxCreds ?? "",
+          token: this.options.watsonxCreds ?? "",
           expiration: -1,
         };
       } else {
         // Using username/password auth
-        const userPass = this.watsonxCreds?.split(":");
+        const userPass = this.options.watsonxCreds?.split(":");
         const wxToken = await (
-          await fetch(`${this.watsonxUrl}/icp4d-api/v1/authorize`, {
+          await fetch(`${this.options.watsonxUrl}/icp4d-api/v1/authorize`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -82,38 +82,38 @@ class WatsonxEmbeddingsProvider extends BaseEmbeddingsProvider {
           expiration: wxTokenExpiry["exp"],
         };
       }
-    }*/
+    }
   }
- async getSingleBatchEmbedding(batch: string[]) {
+  async getSingleBatchEmbedding(batch: string[]) {
 
-var now = new Date().getTime() / 1000;
+    var now = new Date().getTime() / 1000;
     if (
-          watsonxConfig.accessToken === undefined ||
-          now > watsonxConfig.accessToken.expiration ||
-          watsonxConfig.accessToken.token === undefined
-        ) {
-          watsonxConfig.accessToken = await this.getBearerToken();
-        } else {
-          console.log(
-            `Reusing token (expires in ${(watsonxConfig.accessToken.expiration - now) / 60
-            } mins)`
-          );
-        }
+      watsonxConfig.accessToken === undefined ||
+      now > watsonxConfig.accessToken.expiration ||
+      watsonxConfig.accessToken.token === undefined
+    ) {
+      watsonxConfig.accessToken = await this.getBearerToken();
+    } else {
+      console.log(
+        `Reusing token (expires in ${(watsonxConfig.accessToken.expiration - now) / 60
+        } mins)`
+      );
+    }
     return await withExponentialBackoff<number[]>(async () => {
       const payload: any = {
         inputs: batch,
         parameters: {
           truncate_input_tokens: 500,
-          return_options: {input_text: false}
+          return_options: { input_text: false }
         },
         model_id: this.options.model,
         project_id: this.options.watsonxProjectId
       };
-     const headers = {
-       "Content-Type": "application/json",
-       Authorization: `${watsonxConfig.accessToken.expiration === -1 ? "ZenApiKey" : "Bearer"
-         } ${watsonxConfig.accessToken.token}`,
-     }
+      const headers = {
+        "Content-Type": "application/json",
+        "Authorization": `${watsonxConfig.accessToken.expiration === -1 ? "ZenApiKey" : "Bearer"
+          } ${watsonxConfig.accessToken.token}`,
+      }
       const resp = await this.fetch(new URL(`${this.options.watsonxUrl}/ml/v1/text/embeddings?version=${this.options.watsonxApiVersion}`), {
         method: "POST",
         body: JSON.stringify(payload),
@@ -129,16 +129,16 @@ var now = new Date().getTime() / 1000;
       if (!embeddings || embeddings.length === 0) {
         throw new Error("Watsonx generated empty embedding");
       }
-      return embeddings.map(e => e.embedding);
+      return embeddings.map((e: any) => e.embedding);
     });
   }
- async embed(chunks: string[]) {
-   const batchedChunks = this.getBatchedChunks(chunks);
-     const results = await Promise.all(
-       batchedChunks.map((batch) => this.getSingleBatchEmbedding(batch)),
-     );
-     return results.flat();
-   }
+  async embed(chunks: string[]) {
+    const batchedChunks = this.getBatchedChunks(chunks);
+    const results = await Promise.all(
+      batchedChunks.map((batch) => this.getSingleBatchEmbedding(batch)),
+    );
+    return [results.flat()];
+  }
 }
 
 export default WatsonxEmbeddingsProvider;
