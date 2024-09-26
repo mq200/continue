@@ -27,6 +27,7 @@ class WatsonxEmbeddingsProvider extends BaseEmbeddingsProvider {
       this.options.watsonxFullUrl?.includes("cloud.ibm.com") ||
       this.options.watsonxUrl?.includes("cloud.ibm.com")
     ) {
+
       // watsonx SaaS
       const wxToken = await (
         await fetch(
@@ -84,7 +85,7 @@ class WatsonxEmbeddingsProvider extends BaseEmbeddingsProvider {
       }
     }
   }
-  async getSingleBatchEmbedding(batch: string[]) {
+  async getSingleBatchEmbedding(batch: string[]){
 
     var now = new Date().getTime() / 1000;
     if (
@@ -99,7 +100,7 @@ class WatsonxEmbeddingsProvider extends BaseEmbeddingsProvider {
         } mins)`
       );
     }
-    return await withExponentialBackoff<number[]>(async () => {
+    return await withExponentialBackoff<number[][]>(async () => {
       const payload: any = {
         inputs: batch,
         parameters: {
@@ -132,13 +133,15 @@ class WatsonxEmbeddingsProvider extends BaseEmbeddingsProvider {
       return embeddings.map((e: any) => e.embedding);
     });
   }
+
   async embed(chunks: string[]) {
     const batchedChunks = this.getBatchedChunks(chunks);
     const results = await Promise.all(
       batchedChunks.map((batch) => this.getSingleBatchEmbedding(batch)),
     );
-    return [results.flat()];
+    return results.flat();
   }
 }
+
 
 export default WatsonxEmbeddingsProvider;

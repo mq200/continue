@@ -205,7 +205,7 @@ class IdeProtocolClient (
         val pluginDescriptor = PluginManager.getPlugin(PluginId.getId(myPluginId)) ?: throw Exception("Plugin not found")
 
         val pluginPath = pluginDescriptor.pluginPath
-        val osName = System.getProperty("os.name").toLowerCase()
+        val osName = System.getProperty("os.name").lowercase()
         val os = when {
             osName.contains("mac") || osName.contains("darwin") -> "darwin"
             osName.contains("win") -> "win32"
@@ -608,8 +608,15 @@ class IdeProtocolClient (
 
                     "listFolders" -> {
                         val workspacePath = workspacePath ?: return@launch
-                        val workspaceDir = File(workspacePath)
-                        val folders = workspaceDir.listFiles { file -> file.isDirectory }?.map { file -> file.absolutePath } ?: emptyList()
+                        val folders = mutableListOf<String>()
+                        fun findNestedFolders(dirPath: String) {
+                            val dir = File(dirPath)
+                            val nestedFolders = dir.listFiles { file -> file.isDirectory }?.map { file -> file.absolutePath } ?: emptyList()
+
+                            folders.addAll(nestedFolders);
+                            nestedFolders.forEach { folder -> findNestedFolders(folder) }
+                        }
+                        findNestedFolders(workspacePath)
                         respond(folders)
                     }
 

@@ -46,6 +46,7 @@ export async function retrieveContextItemsFromEmbeddings(
   const useReranking = !!extras.reranker;
   const nRetrieve = useReranking ? options?.nRetrieve || 2 * nFinal : nFinal;
 
+
   const branches = (await Promise.race([
     Promise.all(workspaceDirs.map((dir) => extras.ide.getBranch(dir))),
     new Promise((resolve) => {
