@@ -484,8 +484,14 @@ async function intermediateToFinalConfig(
         model: "rerank-2",
         ...params,
       };
-      config.reranker = new rerankerClass(llmOptions);
-    }
+      config.reranker = new rerankerClass(llmOptions,
+          (url: string | URL, init: any) =>
+              fetchwithRequestOptions(url, init, {
+                  ...config.requestOptions,
+                ...params?.requestOptions,
+              })
+          );
+      }
   }
 
   let continueConfig: ContinueConfig = {

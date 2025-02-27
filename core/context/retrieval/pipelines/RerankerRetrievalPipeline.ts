@@ -41,10 +41,11 @@ export default class RerankerRetrievalPipeline extends BaseRetrievalPipeline {
 
     if (filterDirectory) {
       // Backup if the individual retrieval methods don't listen
-      retrievalResults = retrievalResults.filter(
-        (chunk) => !!findUriInDirs(chunk.filepath, [filterDirectory]),
-      );
-    }
+        retrievalResults = retrievalResults.filter(
+              (chunk) =>
+                !!findUriInDirs(chunk.filepath, [filterDirectory]).foundInDir,
+            );
+        }
 
     const deduplicatedRetrievalResults: Chunk[] =
       deduplicateChunks(retrievalResults);
